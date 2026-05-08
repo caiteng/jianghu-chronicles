@@ -36,7 +36,7 @@ function MobileApp() {
     <div className="warning">
       <img src={logo} alt="logo" />
       <h1>
-        <a href="https://github.com/codingben/maple-fighters">Maple Fighters</a>{" "}
+        <a href="https://github.com/codingben/maple-fighters">江湖异闻录</a>{" "}
         is not compatible with your device. Please use a desktop or laptop
         computer.
       </h1>
@@ -49,7 +49,7 @@ function Logo() {
     <div>
       <img src={logo} className="logo" alt="logo" />
       <div className="title">
-        <h2>Maple Fighters</h2>
+        <h2>江湖异闻录</h2>
       </div>
     </div>
   );
