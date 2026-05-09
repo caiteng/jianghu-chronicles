@@ -1,23 +1,19 @@
 {
   "name": "jianghu-chronicles",
-  "homepage": "https://maplefighters.io",
-  "version": "2.0.0",
-  "description": "A small online game similar to MapleStory",
+  "version": "0.1.0",
+  "description": "A browser-based multiplayer martial arts side-scroller prototype.",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "start": "PUBLIC_URL=/ react-scripts start",
-    "build": "PUBLIC_URL=/ react-scripts build",
-    "build:gh-pages": "PUBLIC_URL=/maple-fighters/ react-scripts build",
-    "deploy": "gh-pages -b gh-pages -d build"
+    "build": "PUBLIC_URL=/ react-scripts build"
   },
-  "author": "Ben Oukhanov",
   "license": "AGPL",
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@types/node": "^16.10.1",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
-    "gh-pages": "^3.2.3",
     "react-device-detect": "^2.0.1",
     "react-dom": "^17.0.2",
     "react-scripts": "^5.0.0",

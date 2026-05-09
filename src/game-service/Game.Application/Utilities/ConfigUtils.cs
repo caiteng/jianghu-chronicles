@@ -15,7 +15,8 @@ namespace Utilities
             if (string.IsNullOrEmpty(configSource))
                 throw new ArgumentException("CONFIG_SOURCE is not defined");
 
-            return $"https://raw.githubusercontent.com/codingben/maple-fighters-configs/{configSource}/{configFile}";
+            return $"https://raw.githubusercontent.com/codingben/" +
+                $"maple-fighters-configs/{configSource}/{configFile}";
         }
 
         public static string LoadYamlConfig(string url)

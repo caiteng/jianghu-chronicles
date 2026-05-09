@@ -1,100 +1,46 @@
-<h1 align="center">Maple Fighters</h1>
-<p align="center">
-  <img src="docs/images/maplestory-icon.png" width="100px" height="100px"/>
-  <br><i>A small online game similar to MapleStory</i><br>
-</p>
-<p align="center">
-  <a href="https://maplefighters.io"><strong>maplefighters.io</strong></a>
-  <br>
-</p>
+# 江湖异闻录 / Jianghu Chronicles
 
-## About
+《江湖异闻录》是一个古代武侠横版多人 Web 游戏原型。当前阶段优先保持浏览器可玩、服务器可部署、多人连接可验证，并在此基础上逐步把历史工程整理成可持续开发的自有项目。
 
-[![Unity Build](https://github.com/codingben/maple-fighters/actions/workflows/unity-build.yml/badge.svg)](https://github.com/codingben/maple-fighters/actions/workflows/unity-build.yml)
-[![Frontend Build](https://github.com/codingben/maple-fighters/actions/workflows/frontend-build.yml/badge.svg)](https://github.com/codingben/maple-fighters/actions/workflows/frontend-build.yml)
-[![Game Service Build](https://github.com/codingben/maple-fighters/actions/workflows/game-service-build.yml/badge.svg)](https://github.com/codingben/maple-fighters/actions/workflows/game-service-build.yml)
+## 当前状态
 
-Maple Fighters is an online multiplayer game inspired by MapleStory where you battle monsters with others in real-time.
+- 浏览器可打开并试玩。
+- Unity WebGL 客户端负责当前可玩游戏内容。
+- React 外壳负责页面标题、加载状态、全屏入口和项目链接。
+- Nginx 提供静态文件服务与 `/game` WebSocket 反向代理。
+- .NET 5 `game-service` 负责多人连接和游戏消息处理。
+- Docker Compose 作为当前唯一服务器部署入口。
+- `/gameprovider/games` 本地接口为客户端提供当前服务器信息。
+- 运行时 URL 重写补丁会把历史 WebGL 底座中可能写死的旧域名、本机地址请求改写到当前访问来源，用于脱离历史域名运行。
 
-Please **★ Star** if you like it. Made With :heart: For Open Source Community!
+## 启动与部署
 
-## Play Online
-
-Maple Fighters is available at [maplefighters.io](https://maplefighters.io). This is a web game, no installation required. Supported in any web browser with internet connection. Small, optimized, and incredibly fast! 🚀
-
-## Screenshots
-
-| Lobby                             | The Dark Forest                             |
-| --------------------------------- | ------------------------------------------- |
-| <img src="docs/images/lobby.png"> | <img src="docs/images/the-dark-forest.png"> |
-
-## Technology
-
-**Game Engine**: Unity (_2020.3.17_)  
-**Client**: C#, React.js (_C# is compiled to C++ and finally to WebAssembly_)  
-**Server**: C# (_.NET 5.0_)  
-**Reverse Proxy**: Nginx  
-**Cloud**: DigitalOcean  
-
-## Quickstart
-
-### Docker
-
-> 💡 Please make sure you have Docker installed.
-
-1. Clone repository:
+本地或服务器均使用同一套部署入口：
 
 ```bash
-git clone https://github.com/codingben/maple-fighters.git
-cd maple-fighters
+cp .env.server.example .env.server
+./scripts/deploy-prod.sh
 ```
 
-2. Build and run docker images:
+部署脚本会校验 Docker Compose 配置、构建并启动容器，然后检查 `/healthz`、`/gameprovider/games` 和 `/game` WebSocket 握手。
 
-```bash
-docker compose up
+## 访问
+
+部署完成后，在桌面浏览器访问：
+
+```text
+http://服务器IP
 ```
 
-### Kubernetes
+如果 `.env.server` 中修改了 `PUBLIC_HTTP_PORT`，请使用对应端口访问。
 
-> 💡 Please make sure you have Kubernetes cluster.
+## 开发原则
 
-1. Create Kubernetes resources in `maple-fighters` namespace:
+- 始终保持项目可运行、可部署、可试玩。
+- 每次只做小步改造，便于回滚和定位问题。
+- 不破坏当前可玩版本依赖的 Unity WebGL 构建产物、Nginx 配置和 game-service 连接链路。
+- 资源、玩法、角色、怪物、地图、技能和 UI 会逐步替换为自有武侠内容。
 
-```bash
-kubectl apply -f https://raw.githubusercontent.com/codingben/maple-fighters/main/release/kubernetes-manifests.yaml
-namespace/maple-fighters created
-service/frontend-external created
-service/game-service created
-deployment.apps/frontend created
-deployment.apps/game-service created
-```
+## 重要说明
 
-2. Make sure all pods are running:
-
-```bash
-kubectl get pods -n maple-fighters
-NAME                            READY   STATUS    RESTARTS   AGE
-frontend-79d44b9fbb-gf45k       1/1     Running   0          10s
-game-service-54f66cbcbb-q9vtb   1/1     Running   0          10s
-```
-
-3. Use `EXTERNAL_IP` to access Maple Fighters in a web browser:
-
-```bash
-kubectl get service frontend-external -n maple-fighters
-NAME                TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-frontend-external   LoadBalancer   10.101.21.120   <pending>     80:31765/TCP   10s
-```
-
-## Contributing
-
-Please read the [contributing guidelines](CONTRIBUTING.md).
-
-## Artwork
-
-The artwork is owned by Nexon Co., Ltd and will never be used commercially.
-
-## License
-
-[AGPL](https://choosealicense.com/licenses/agpl-3.0/)
+当前版本仍使用历史 WebGL 底座来保证原型可玩。后续会在不破坏部署和试玩链路的前提下，逐步替换角色、怪物、地图、技能、UI 与工程命名，最终演进为完整的《江湖异闻录》项目。
