@@ -16,10 +16,6 @@ function EnterFullScreen() {
   unityContext.setFullscreen(true);
 }
 
-function ShowLoginWindow() {
-  unityContext.send("Authenticator Controller", "ShowLoginWindow");
-}
-
 function SetEnvironment() {
   // Timeout is required because of the splash screen,
   // so it takes a few seconds to load game scene.
@@ -35,11 +31,7 @@ function MobileApp() {
   return (
     <div className="warning">
       <img src={logo} alt="logo" />
-      <h1>
-        <a href="https://github.com/codingben/maple-fighters">江湖异闻录</a>{" "}
-        is not compatible with your device. Please use a desktop or laptop
-        computer.
-      </h1>
+      <h1>江湖异闻录当前原型暂不支持移动端，请使用桌面浏览器体验。</h1>
     </div>
   );
 }
@@ -59,17 +51,7 @@ function FullScreenButton() {
   return (
     <div>
       <button onClick={EnterFullScreen} className="fullscreen-button">
-        Enter Full Screen
-      </button>
-    </div>
-  );
-}
-
-function LoginButton() {
-  return (
-    <div>
-      <button onClick={ShowLoginWindow} className="login-button">
-        Login
+        进入全屏
       </button>
     </div>
   );
@@ -78,8 +60,12 @@ function LoginButton() {
 function GitHubButton() {
   return (
     <div>
-      <a href="https://github.com/codingben/maple-fighters" target="_blank">
-        <button className="github-button">GitHub</button>
+      <a
+        href="https://github.com/caiteng/jianghu-chronicles"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <button className="github-button">项目仓库</button>
       </a>
     </div>
   );
@@ -88,19 +74,7 @@ function GitHubButton() {
 function Footer() {
   return (
     <div className="footer">
-      <h4>
-        Made with <span style={{ color: "#E91E63" }}>&#x2764;</span> by{" "}
-        <a
-          href="https://codingben.io"
-          target="_blank"
-          style={{ textDecoration: "none" }}
-        >
-          Ben Oukhanov
-        </a>
-      </h4>
-      <h5 style={{ color: "gray" }}>
-        (Artwork is owned by Nexon Co., Ltd and will never be used commercially)
-      </h5>
+      <h4>技术原型版本 · 江湖异闻录</h4>
     </div>
   );
 }
@@ -126,7 +100,6 @@ function App() {
           {loading == false && (
             <div {...fade}>
               <FullScreenButton />
-              {/* <LoginButton /> */}
             </div>
           )}
           <GitHubButton />

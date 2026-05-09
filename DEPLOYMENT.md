@@ -1,59 +1,65 @@
-# Jianghu Chronicles Deployment
+# 部署说明
 
-本项目的 CI/CD 尽量与 `caiteng/Rune-Dice` 保持一致：GitHub Actions 推送到 `main` 后，通过 `appleboy/ssh-action` SSH 到同一台服务器，在服务器目录中执行部署脚本。
+## 服务器要求
 
-## GitHub Actions 配置
+- Linux 服务器。
+- Docker。
+- Docker Compose plugin（支持 `docker compose` 命令）。
+- 开放 80 端口，或开放 `.env.server` 中配置的 `PUBLIC_HTTP_PORT`。
 
-Workflow 使用 GitHub Actions environment：`武汉2C2G`。
+## 首次部署
 
-需要在该 environment 中配置并复用以下 Secrets：
+```bash
+git clone https://github.com/caiteng/jianghu-chronicles.git
+cd jianghu-chronicles
+cp .env.server.example .env.server
+./scripts/deploy-prod.sh
+```
 
-- `DEPLOY_HOST` - 服务器公网 IP 或域名。
-- `DEPLOY_USER` - SSH 用户，例如 `root`。
-- `DEPLOY_SSH_KEY` - SSH 私钥内容。
-- `DEPLOY_PORT` - SSH 端口。
+## 更新部署
 
-部署目录在 workflow 中固定为当前服务器目录：`/root/maple-fighters`。
+```bash
+git pull
+./scripts/deploy-prod.sh
+```
 
-## 服务器首次部署
+## GitHub Actions 自动部署
 
-1. 安装 Docker / Docker Compose。
-2. clone 仓库到服务器部署目录：
-   ```bash
-   git clone https://github.com/caiteng/jianghu-chronicles.git /root/maple-fighters
-   cd /root/maple-fighters
-   ```
-3. 创建服务器环境文件：
-   ```bash
-   cp .env.server.example .env.server
-   ```
-4. 设置生产环境：
-   ```bash
-   if grep -q '^REACT_APP_ENV=' .env.server; then
-     sed -i 's/^REACT_APP_ENV=.*/REACT_APP_ENV=Production/' .env.server
-   else
-     echo 'REACT_APP_ENV=Production' >> .env.server
-   fi
-   ```
-5. 手动执行部署脚本：
-   ```bash
-   scripts/deploy-prod.sh
-   ```
+如果仓库存在 `.github/workflows/deploy.yml`，则 `main` 分支 push 后会自动部署，也可以在 GitHub Actions 页面手动触发。
 
-## 后续部署
+需要配置以下 GitHub Secrets：
 
-- push 到 `main` 分支会自动部署。
-- 或在 GitHub Actions 页面手动执行 **Run workflow**。
+- `DEPLOY_HOST`
+- `DEPLOY_USER`
+- `DEPLOY_PORT`
+- `DEPLOY_PATH`
+- `DEPLOY_SSH_KEY`
 
-Workflow 会 SSH 到服务器，进入 `/root/maple-fighters`，执行 `scripts/deploy-prod.sh`。脚本会拉取 `origin/main`，保留服务器上的 `.env.server`，强制 `REACT_APP_ENV=Production`，重新构建并启动 Docker Compose 服务，然后执行健康检查。
+不要把 SSH 私钥或任何 Secret 写入仓库。
 
-## 验证命令
-
-在服务器上执行：
+## 健康检查命令
 
 ```bash
 curl http://127.0.0.1/healthz
 curl http://127.0.0.1/gameprovider/games
 docker compose -f docker-compose.server.yml --env-file .env.server ps
+docker compose -f docker-compose.server.yml --env-file .env.server logs -f
+```
+
+## 常见问题
+
+### `WebGL.framework.js Unexpected token '<'`
+
+通常是 Unity WebGL gzip 配置损坏，浏览器拿到了 HTML fallback 而不是 gzip 后的 JavaScript。请检查 `src/frontend/nginx.conf` 中 `.framework.js`、`.wasm`、`.data` 的 `try_files` 与 `Content-Encoding gzip` 配置。
+
+### 仍出现 localhost 或历史域名请求
+
+请检查容器启动后 `local-runtime-patch.js` 是否已注入到 `index.html`，并在浏览器控制台确认出现 `[local-runtime-patch] enabled`。
+
+### `/game` WebSocket 不通
+
+请检查 `game-service` 容器是否运行，确认 Nginx `/game` 代理仍指向 `game-service:50051`，并查看：
+
+```bash
 docker compose -f docker-compose.server.yml --env-file .env.server logs -f
 ```

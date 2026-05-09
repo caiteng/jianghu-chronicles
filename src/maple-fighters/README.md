@@ -1,26 +1,3 @@
-# Maple Fighters
+# Historical Unity Source
 
-[![Unity Build](https://github.com/codingben/maple-fighters/actions/workflows/unity-build.yml/badge.svg)](https://github.com/codingben/maple-fighters/actions/workflows/unity-build.yml)
-
-Maple Fighters game code lives here. This folder can be opened with Unity.
-
-## Project Structure
-
-```
-├── Assets
-│   ├── Maple Fighters
-│   │   ├── Animations
-│   │   ├── Animators
-│   │   ├── Editor
-│   │   ├── Physics
-│   │   ├── Prefabs
-│   │   ├── Resources
-│   │   ├── Scenes
-│   │   ├── Scripts
-│   │   ├── Sprites
-│   │   └── Textures
-│   └── Plugins
-├── Library
-├── Packages
-├── ProjectSettings
-```
+This directory contains the historical Unity project source used as the current prototype base. Do not modify gameplay assets here unless the change is part of a deliberate, tested migration toward Jianghu Chronicles content.

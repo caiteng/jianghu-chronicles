@@ -23,6 +23,6 @@ MonoBehaviour:
     Environment: 1
   - Name: Production
     Protocol: wss
-    Host: maplefighters.io
+    Host: localhost
     Environment: 2
   Environment: 0
