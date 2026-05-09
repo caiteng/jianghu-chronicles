@@ -21,36 +21,34 @@ inject_runtime_patch() {
     return (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host;
   }
 
+  function logRewrite(label, oldUrl, newUrl) {
+    if (newUrl !== oldUrl) {
+      console.log("[local-runtime-patch] " + label + " rewrite:", oldUrl, "=>", newUrl);
+    }
+  }
+
   function rewriteHttpUrl(url) {
     if (typeof url !== "string") return url;
 
-    var old = url;
-    url = url
+    var rewritten = url
       .replace(/^https?:\/\/maplefighters\.io(?::\d+)?(?=\/|$)/, httpOrigin())
       .replace(/^https?:\/\/localhost(?::\d+)?(?=\/|$)/, httpOrigin())
       .replace(/^https?:\/\/127\.0\.0\.1(?::\d+)?(?=\/|$)/, httpOrigin());
 
-    if (url !== old) {
-      console.log("[local-runtime-patch] HTTP rewrite:", old, "=>", url);
-    }
-
-    return url;
+    logRewrite("HTTP", url, rewritten);
+    return rewritten;
   }
 
   function rewriteWsUrl(url) {
     if (typeof url !== "string") return url;
 
-    var old = url;
-    url = url
+    var rewritten = url
       .replace(/^wss?:\/\/maplefighters\.io(?::\d+)?(?=\/|$)/, wsOrigin())
       .replace(/^wss?:\/\/localhost(?::\d+)?(?=\/|$)/, wsOrigin())
       .replace(/^wss?:\/\/127\.0\.0\.1(?::\d+)?(?=\/|$)/, wsOrigin());
 
-    if (url !== old) {
-      console.log("[local-runtime-patch] WS rewrite:", old, "=>", url);
-    }
-
-    return url;
+    logRewrite("WS", url, rewritten);
+    return rewritten;
   }
 
   var originalOpen = XMLHttpRequest.prototype.open;
@@ -64,12 +62,15 @@ inject_runtime_patch() {
     window.fetch = function (input, init) {
       if (typeof input === "string") {
         input = rewriteHttpUrl(input);
-      } else if (input && input.url) {
-        var rewritten = rewriteHttpUrl(input.url);
-        if (rewritten !== input.url) {
-          input = new Request(rewritten, input);
+      } else if (typeof Request !== "undefined" && input instanceof Request) {
+        var rewrittenRequestUrl = rewriteHttpUrl(input.url);
+        if (rewrittenRequestUrl !== input.url) {
+          input = new Request(rewrittenRequestUrl, input);
         }
+      } else if (input && input.url) {
+        input.url = rewriteHttpUrl(input.url);
       }
+
       return originalFetch.call(this, input, init);
     };
   }
@@ -80,13 +81,17 @@ inject_runtime_patch() {
     return protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
   };
   window.WebSocket.prototype = OriginalWebSocket.prototype;
+  window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+  window.WebSocket.OPEN = OriginalWebSocket.OPEN;
+  window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
+  window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
 
-  console.log("[local-runtime-patch] enabled:", window.location.origin);
+  console.log("[local-runtime-patch] enabled", window.location.origin);
 })();
 JS
 
   if ! grep -q "local-runtime-patch.js" /usr/share/nginx/html/index.html; then
-    sed -i 's#</head>#<script src="/local-runtime-patch.js?v=2"></script></head>#' /usr/share/nginx/html/index.html
+    sed -i 's#</head>#<script src="/local-runtime-patch.js?v=3"></script></head>#' /usr/share/nginx/html/index.html
   fi
 }
 
