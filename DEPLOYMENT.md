@@ -27,12 +27,15 @@ git pull
 
 如果仓库存在 `.github/workflows/deploy.yml`，则 `main` 分支 push 后会自动部署，也可以在 GitHub Actions 页面手动触发。
 
-需要配置以下 GitHub Secrets：
+GitHub Actions 使用的 Environment 名称为 `武汉2C2G`。
+
+当前服务器部署目录固定为 `/root/maple-fighters`，部署 workflow 会在该目录拉取 `origin/main` 并运行 `scripts/deploy-prod.sh`。
+
+需要在 GitHub Environment `武汉2C2G` 中配置以下 Secrets：
 
 - `DEPLOY_HOST`
 - `DEPLOY_USER`
 - `DEPLOY_PORT`
-- `DEPLOY_PATH`
 - `DEPLOY_SSH_KEY`
 
 不要把 SSH 私钥或任何 Secret 写入仓库。
