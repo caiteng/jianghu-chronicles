@@ -13,28 +13,44 @@ set_config() {
 inject_runtime_patch() {
   cat > /usr/share/nginx/html/local-runtime-patch.js <<'JS'
 (function () {
-  function sameOriginHttp() {
+  function httpOrigin() {
     return window.location.origin;
   }
 
-  function sameOriginWs() {
+  function wsOrigin() {
     return (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host;
   }
 
   function rewriteHttpUrl(url) {
     if (typeof url !== "string") return url;
 
-    return url
-      .replace(/^https?:\/\/maplefighters\.io(?=\/|$)/, sameOriginHttp())
-      .replace(/^http:\/\/localhost(?=\/|$)/, sameOriginHttp());
+    var old = url;
+    url = url
+      .replace(/^https?:\/\/maplefighters\.io(?::\d+)?(?=\/|$)/, httpOrigin())
+      .replace(/^https?:\/\/localhost(?::\d+)?(?=\/|$)/, httpOrigin())
+      .replace(/^https?:\/\/127\.0\.0\.1(?::\d+)?(?=\/|$)/, httpOrigin());
+
+    if (url !== old) {
+      console.log("[local-runtime-patch] HTTP rewrite:", old, "=>", url);
+    }
+
+    return url;
   }
 
   function rewriteWsUrl(url) {
     if (typeof url !== "string") return url;
 
-    return url
-      .replace(/^wss?:\/\/maplefighters\.io(?=\/|$)/, sameOriginWs())
-      .replace(/^ws:\/\/localhost(?=\/|$)/, sameOriginWs());
+    var old = url;
+    url = url
+      .replace(/^wss?:\/\/maplefighters\.io(?::\d+)?(?=\/|$)/, wsOrigin())
+      .replace(/^wss?:\/\/localhost(?::\d+)?(?=\/|$)/, wsOrigin())
+      .replace(/^wss?:\/\/127\.0\.0\.1(?::\d+)?(?=\/|$)/, wsOrigin());
+
+    if (url !== old) {
+      console.log("[local-runtime-patch] WS rewrite:", old, "=>", url);
+    }
+
+    return url;
   }
 
   var originalOpen = XMLHttpRequest.prototype.open;
@@ -65,12 +81,12 @@ inject_runtime_patch() {
   };
   window.WebSocket.prototype = OriginalWebSocket.prototype;
 
-  console.log("[local-runtime-patch] enabled, origin =", window.location.origin);
+  console.log("[local-runtime-patch] enabled:", window.location.origin);
 })();
 JS
 
   if ! grep -q "local-runtime-patch.js" /usr/share/nginx/html/index.html; then
-    sed -i 's#</head>#<script src="/local-runtime-patch.js"></script></head>#' /usr/share/nginx/html/index.html
+    sed -i 's#</head>#<script src="/local-runtime-patch.js?v=2"></script></head>#' /usr/share/nginx/html/index.html
   fi
 }
 
