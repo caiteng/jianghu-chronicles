@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c8ccb8a03f08646b2ec0522b88a75b, type: 3}
+  m_Name: NetworkConfiguration
+  m_EditorClassIdentifier: 
+  HostingData:
+  - Name: Editor
+    Protocol: ws
+    Host: localhost
+    Environment: 0
+  - Name: Development
+    Protocol: ws
+    Host: localhost
+    Environment: 1
+  - Name: Production
+    Protocol: wss
+    Host: localhost
+    Environment: 2
+  Environment: 0

@@ -1,0 +1,39 @@
+name: Cloud Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      cloud:
+        type: choice
+        description: Cloud Infrastructure
+        options:
+        - DigitalOcean
+
+jobs:
+  digitalocean-deploy:
+    if: ${{ inputs.cloud }} == 'DigitalOcean'
+    runs-on: ubuntu-latest
+    steps:
+      - name: DigitalOcean Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+          key: ${{ secrets.DIGITALOCEAN_KEY }}
+          port: ${{ secrets.DIGITALOCEAN_PORT }}
+          script: |
+            # Set File Variables
+            HOST=https://raw.githubusercontent.com
+            USER=codingben
+            REPO_NAME=maple-fighters
+            BRANCH=main
+            FILE=docker-compose.prod.yml
+
+            # Download File
+            rm ${FILE}
+            curl -s ${HOST}/${USER}/${REPO_NAME}/${BRANCH}/${FILE} -o ${FILE}
+
+            # Pull, Up and Clean
+            docker-compose -f ${FILE} pull
+            docker-compose -f ${FILE} up -d
+            docker system prune -af

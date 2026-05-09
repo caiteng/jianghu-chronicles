@@ -1,0 +1,28 @@
+name: Game Service Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/game-service/Game.Application/**
+  pull_request:
+    branches: [main]
+    paths:
+      - src/game-service/Game.Application/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "5.0.x"
+      - name: Game Application Build
+        run: dotnet build src/game-service/Game.Application -c Release
+      - name: Game Physics Tests Build
+        run: dotnet build src/game-service/Game.PhysicsTests -c Release
+      - name: Game Unit Tests
+        run: dotnet build src/game-service/Game.UnitTests -c Release

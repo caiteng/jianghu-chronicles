@@ -1,0 +1,37 @@
+services:
+  frontend:
+    image: jianghu-chronicles-frontend:server
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    environment:
+      REACT_APP_ENV: "${REACT_APP_ENV:-Production}"
+      REMOVE_CF_IPS: "true"
+    ports:
+      - "${PUBLIC_HTTP_PORT:-80}:80"
+    depends_on:
+      - game-service
+    restart: unless-stopped
+    networks:
+      - maple-net
+
+  game-service:
+    image: jianghu-chronicles-game-service:server
+    build:
+      context: ./src/game-service/Game.Application
+    restart: unless-stopped
+    expose:
+      - "50051"
+    environment:
+      URL: "ws://0.0.0.0:50051"
+      FLECK_LOG: "${FLECK_LOG:-Info}"
+      IM_LOG: "${IM_LOG:-Info}"
+      GAME_LOG: "${GAME_LOG:-Info}"
+      CONFIG_SOURCE: "${CONFIG_SOURCE:-v2.0}"
+      MAX_CONNECTIONS: "${MAX_CONNECTIONS:-100}"
+    networks:
+      - maple-net
+
+networks:
+  maple-net:
+    driver: bridge

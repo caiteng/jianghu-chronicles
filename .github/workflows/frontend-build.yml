@@ -1,0 +1,28 @@
+name: Frontend Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/frontend/**
+  pull_request:
+    branches: [main]
+    paths:
+      - src/frontend/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: src/frontend/package-lock.json
+      - name: Frontend App Install
+        run: npm ci --prefix src/frontend
+      - name: Frontend App Build
+        run: npm run build --prefix src/frontend

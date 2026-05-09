@@ -1,0 +1,35 @@
+{
+  "name": "jianghu-chronicles",
+  "version": "0.1.0",
+  "description": "A browser-based multiplayer martial arts side-scroller prototype.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "PUBLIC_URL=/ react-scripts start",
+    "build": "PUBLIC_URL=/ react-scripts build"
+  },
+  "license": "AGPL",
+  "dependencies": {
+    "@emotion/react": "^11.4.1",
+    "@types/node": "^16.10.1",
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9",
+    "react-device-detect": "^2.0.1",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^5.0.0",
+    "react-spinners": "^0.11.0",
+    "react-unity-webgl": "^8.5.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

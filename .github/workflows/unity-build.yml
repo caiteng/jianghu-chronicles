@@ -1,0 +1,60 @@
+name: Unity Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/maple-fighters/**
+  pull_request:
+    branches: [main]
+    paths:
+      - src/maple-fighters/**
+  workflow_dispatch:
+    # Left blank intentionally
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_VERSION: 2020.2.1f1
+  PROJECT_PATH: src/maple-fighters
+
+jobs:
+  checklicense:
+    name: Check Unity License
+    runs-on: ubuntu-latest
+    outputs:
+      is_unity_license_set: ${{ steps.checklicense_job.outputs.is_unity_license_set }}
+    steps:
+      - name: Check if UNITY_LICENSE is available
+        id: checklicense_job
+        run: |
+            echo "::set-output name=is_unity_license_set::${{ env.UNITY_LICENSE != '' }}"
+  build:
+    needs: [checklicense]
+    if: needs.checklicense.outputs.is_unity_license_set == 'true'
+    name: Build For ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - WebGL
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/cache@v4
+        with:
+          path: ${{ matrix.projectPath }}/Library
+          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
+          restore-keys: |
+            Library-${{ matrix.projectPath }}-
+            Library-
+      - uses: game-ci/unity-builder@v2
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: ${{ matrix.targetPlatform }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Build
+          path: build

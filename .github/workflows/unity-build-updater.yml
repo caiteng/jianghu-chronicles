@@ -1,0 +1,44 @@
+name: Unity Build Updater
+
+on:
+  workflow_dispatch:
+    # Left blank intentionally
+
+env:
+  TOKEN: ${{ secrets.ARTIFACTS_TOKEN }}
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Update Game Data
+        run: |
+          # Set Download Game Files Variables
+          ARTIFACT_NAME=Build.zip
+          USER=codingben
+          REPO_NAME=maple-fighters
+          REPO_URL=https://api.github.com/repos/${USER}/${REPO_NAME}
+          WORKFLOW_FILE=unity-build.yml
+          WORKFLOW_URL=${REPO_URL}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=1
+          ARTIFACTS_URL=$(curl -s ${WORKFLOW_URL} | jq -r '.workflow_runs[].artifacts_url')
+          ZIP_URL=$(curl -s ${ARTIFACTS_URL} | jq -r '.artifacts[].archive_download_url')
+          
+          # Download Game Files
+          curl -s -L -H "Authorization: token ${{ env.TOKEN }}" ${ZIP_URL} -o ${ARTIFACT_NAME}
+
+          # Set Update Game Files Variables
+          PLATFORM=WebGL
+          BUILD_PATH=${PLATFORM}/${PLATFORM}/Build/*
+          FILES_PATH=src/frontend/public/files
+          
+          # Update Game Files
+          unzip ${ARTIFACT_NAME}
+          mv ${BUILD_PATH} ${FILES_PATH}
+          rm ${ARTIFACT_NAME}
+          rm -r ${PLATFORM}
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: "build(frontend): update game files"
+          default_author: github_actions

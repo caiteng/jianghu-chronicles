@@ -1,0 +1,76 @@
+﻿using Scripts.Constants;
+using Scripts.Gameplay.Player;
+using UnityEngine;
+
+namespace Scripts.Gameplay.Map.Climb
+{
+    [RequireComponent(typeof(PlayerController), typeof(Collider2D))]
+    public class RopeInteractor : ClimbInteractor
+    {
+        private PlayerController playerController;
+        private ColliderInteraction colliderInteraction;
+
+        private void Awake()
+        {
+            playerController = GetComponent<PlayerController>();
+
+            var collider = GetComponent<Collider2D>();
+            colliderInteraction = new ColliderInteraction(collider);
+        }
+
+        protected override void SetPlayerToClimbState()
+        {
+            playerController.SetPlayerState(GetClimbState());
+        }
+
+        protected override void UnsetPlayerFromClimbState()
+        {
+            var playerState =
+                playerController.IsGrounded()
+                    ? PlayerStates.Idle
+                    : PlayerStates.Falling;
+
+            playerController.SetPlayerState(playerState);
+        }
+
+        protected override PlayerStates GetPlayerState()
+        {
+            return playerController.GetPlayerState();
+        }
+
+        protected override KeyCode GetUpKey()
+        {
+            return playerController.GetKeyboardSettings().ClimbUpKey;
+        }
+
+        protected override KeyCode GetSecondaryUpKey()
+        {
+            return playerController.GetKeyboardSettings().SecondaryClimbUpKey;
+        }
+
+        protected override KeyCode GetDownKey()
+        {
+            return playerController.GetKeyboardSettings().ClimbDownKey;
+        }
+
+        protected override KeyCode GetSecondaryDownKey()
+        {
+            return playerController.GetKeyboardSettings().SecondaryClimbDownKey;
+        }
+
+        protected override ColliderInteraction GetColliderInteraction()
+        {
+            return colliderInteraction;
+        }
+
+        protected override string GetTagName()
+        {
+            return GameTags.RopeTag;
+        }
+
+        protected override PlayerStates GetClimbState()
+        {
+            return PlayerStates.Rope;
+        }
+    }
+}
